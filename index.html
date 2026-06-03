@@ -52,7 +52,7 @@
                     <div class="p-8 flex flex-col justify-between h-full">
                         <div class="text-center mt-6">
                             <h1 class="text-3xl font-bold tracking-wide text-[#3a3030]">✨ Kimmie Reset</h1>
-                            <p class="text-xs text-gray-500 mt-2 tracking-widest uppercase">7-Day Discipline & Soft Life Glow-Up</p>
+                            <p class="text-[11px] text-gray-500 mt-2 tracking-widest uppercase">7-Day Discipline & Soft Life Glow-Up</p>
                         </div>
 
                         <!-- LOGIN CARD -->
@@ -276,7 +276,7 @@
             if (!user) return;
             
             FlutterwaveCheckout({
-                public_key: "FLWPUBK_TEST-c713561dd08ff693fd477ce79e6bb4ac-X", // Secure place-holder test key
+                public_key: "FLWPUBK-c713561dd08ff693fd477ce79e6bb4ac-X", // Live/Test public key linked directly
                 tx_ref: "KimmieReset-" + Date.now(),
                 amount: 3500,
                 currency: "NGN",
@@ -300,8 +300,7 @@
                     }
                 },
                 onclose: function() {
-                    // Fallback demo support in case test key fails connection
-                    console.log("Payment close action.");
+                    console.log("Payment window closed.");
                 }
             });
         }
