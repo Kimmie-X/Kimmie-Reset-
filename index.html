@@ -1,568 +1,313 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronDown, Star, Lock, Download, Mail, Users, Home, Settings, LogOut } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kimmie Reset - 7-Day Discipline & Soft Life Glow-Up</title>
+    <!-- Google Fonts & Tailwind CSS for beautiful styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Flutterwave Standard Inline Script -->
+    <script src="https://checkout.flutterwave.com/v3.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #faf6f6; color: #2d2727; }
+        .luxury-gradient { background: linear-gradient(135deg, #fff5f5 0%, #f3e1e1 100%); }
+        .rose-gold-btn { background: linear-gradient(90deg, #e5a9a9 0%, #cfa0a0 100%); color: white; }
+        .rose-gold-btn:hover { background: linear-gradient(90deg, #cfa0a0 0%, #b88b8b 100%); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start p-4 md:p-8">
 
-const KimmieResetTracker = () => {
-  const [user, setUser] = useState(null);
-  const [currentView, setCurrentView] = useState('login');
-  const [selectedDay, setSelectedDay] = useState(null);
-  const [userProgress, setUserProgress] = useState({});
-  const [journalEntries, setJournalEntries] = useState({});
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isPaid, setIsPaid] = useState(false);
-  const [paymentLoading, setPaymentLoading] = useState(false);
-
-  // 7-Day Challenge Content
-  const challengeDays = [
-    {
-      day: 1,
-      title: "Define Your Why",
-      subtitle: "The Foundation of Discipline",
-      quote: "The why is more powerful than the how.",
-      tips: [
-        "Write down 3 reasons you want this glow-up",
-        "What does your best self look like?",
-        "Visualize yourself 7 days from now"
-      ],
-      affirmations: [
-        "I am worthy of my own transformation",
-        "I choose discipline over comfort",
-        "Every small step counts"
-      ],
-      journalPrompt: "Why do I want this 7-day transformation? What's my deepest motivation?"
-    },
-    {
-      day: 2,
-      title: "Build Your Morning Ritual",
-      subtitle: "Start Your Day Like a Queen",
-      quote: "How you start your morning sets the tone for everything.",
-      tips: [
-        "Wake up 30 mins earlier than usual",
-        "Drink water before anything else",
-        "Do 10 mins of stretching or movement"
-      ],
-      affirmations: [
-        "My mornings are sacred time for me",
-        "I treat myself with love and respect",
-        "I wake up grateful and energized"
-      ],
-      journalPrompt: "How will I design my perfect morning? What does it look like?"
-    },
-    {
-      day: 3,
-      title: "Nourish Your Body",
-      subtitle: "Food as Self-Love",
-      quote: "Your body is a temple. Feed it like one.",
-      tips: [
-        "Eat at least 3 colorful fruits/veggies today",
-        "Drink 3 liters of water",
-        "Choose one unhealthy snack and replace it with something nourishing"
-      ],
-      affirmations: [
-        "I honor my body with nourishing choices",
-        "Every bite is an act of self-love",
-        "I feel healthy, strong, and glowing"
-      ],
-      journalPrompt: "How do I currently treat my body? What changes will I make?"
-    },
-    {
-      day: 4,
-      title: "Declutter Your Mind",
-      subtitle: "Clear Your Mental Space",
-      quote: "A clear mind creates a clear life.",
-      tips: [
-        "Meditate for 10 minutes",
-        "Write down 5 worries and let them go",
-        "Limit social media to 30 mins"
-      ],
-      affirmations: [
-        "My mind is clear, calm, and peaceful",
-        "I choose my thoughts deliberately",
-        "I release what no longer serves me"
-      ],
-      journalPrompt: "What thoughts are cluttering my mind? How will I create mental peace?"
-    },
-    {
-      day: 5,
-      title: "Elevate Your Presence",
-      subtitle: "Dress & Groom Like You Mean It",
-      quote: "When you look good, you feel good.",
-      tips: [
-        "Wear something that makes you feel confident",
-        "Invest 15 mins in skincare",
-        "Style your hair nicely",
-        "Wear perfume or body oil"
-      ],
-      affirmations: [
-        "I am beautiful inside and out",
-        "My presence is magnetic",
-        "I carry myself with confidence and grace"
-      ],
-      journalPrompt: "How do I want to show up in the world? What's my glow-up signature?"
-    },
-    {
-      day: 6,
-      title: "Cultivate Gratitude & Abundance",
-      subtitle: "Shift Your Energy",
-      quote: "Gratitude is the gateway to abundance.",
-      tips: [
-        "List 10 things you're grateful for",
-        "Acknowledge one person who lifts you up",
-        "Celebrate today's wins (big and small)"
-      ],
-      affirmations: [
-        "I am abundant in all areas of my life",
-        "Gratitude attracts more blessings",
-        "I celebrate my progress"
-      ],
-      journalPrompt: "What has this week taught me? How has my energy shifted?"
-    },
-    {
-      day: 7,
-      title: "Commit to Your New Self",
-      subtitle: "Make It Permanent",
-      quote: "This isn't the end. This is your beginning.",
-      tips: [
-        "Review all your journal entries",
-        "Set one habit to keep forever",
-        "Share your transformation story",
-        "Celebrate YOU 🎉"
-      ],
-      affirmations: [
-        "I am committed to my growth",
-        "This transformation is real and permanent",
-        "I am proud of who I'm becoming"
-      ],
-      journalPrompt: "What's my commitment going forward? How will I maintain this glow?"
-    }
-  ];
-
-  // Handle Login
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (email && password) {
-      setUser({ email, name: email.split('@')[0] });
-      setCurrentView('dashboard');
-    }
-  };
-
-  // Handle Payment with Flutterwave
-  const handlePayment = async () => {
-    setPaymentLoading(true);
-    
-    // Initialize Flutterwave payment
-    const paymentData = {
-      public_key: "FLWPUBK-c713561dd08ff693fd477cc79e6bb4ac-X",
-      tx_ref: `KimmieReset-${Date.now()}`,
-      amount: 3500,
-      currency: "NGN",
-      payment_options: "card,ussd,banktransfer",
-      customer: {
-        email: user.email,
-        phonenumber: "234",
-        name: user.name
-      },
-      customizations: {
-        title: "Kimmie Reset - 7 Day Challenge",
-        description: "Unlock Days 6-7 + Premium Features",
-        logo: "https://img.icons8.com/color/96/000000/sparkles.png"
-      },
-      redirect_url: window.location.href,
-      meta: {
-        user_id: user.email,
-        plan: "monthly"
-      }
-    };
-
-    // Load Flutterwave script
-    const script = document.createElement('script');
-    script.src = 'https://checkout.flutterwave.com/v3.js';
-    document.body.appendChild(script);
-
-    script.onload = () => {
-      if (window.FlutterwaveCheckout) {
-        window.FlutterwaveCheckout(paymentData);
-      }
-    };
-
-    // Mark as paid (for demo - in real app, verify with backend)
-    setTimeout(() => {
-      setIsPaid(true);
-      setCurrentView('dashboard');
-      setPaymentLoading(false);
-    }, 2000);
-  };
-
-  // Handle Progress Tracking
-  const handleStarRating = (day, rating) => {
-    setUserProgress({ ...userProgress, [day]: rating });
-  };
-
-  const handleJournalSave = (day, entry) => {
-    setJournalEntries({ ...journalEntries, [day]: entry });
-  };
-
-  // Calculate Progress
-  const completedDays = Object.keys(userProgress).length;
-  const progressPercentage = (completedDays / 7) * 100;
-
-  // Check if day is accessible
-  const isDayAccessible = (dayNum) => {
-    if (dayNum <= 5) return true;
-    return isPaid;
-  };
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-rose-50 flex items-center justify-center p-4">
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap');
-          
-          body { background: linear-gradient(135deg, #fdf2f8 0%, #f3e8ff 50%, #fce7f3 100%); }
-          .sparkle-text { background: linear-gradient(135deg, #ec4899 0%, #d946a6 50%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-          .glow { box-shadow: 0 0 30px rgba(236, 72, 153, 0.3); }
-        `}</style>
-        
-        <div className="w-full max-w-md">
-          {/* Logo/Header */}
-          <div className="text-center mb-8">
-            <div className="text-6xl mb-4">✨</div>
-            <h1 className="text-4xl font-bold sparkle-text mb-2" style={{ fontFamily: 'Playfair Display' }}>
-              Kimmie Reset
-            </h1>
-            <p className="text-lg text-purple-600 font-medium">7-Day Discipline & Soft Life Glow-Up</p>
-          </div>
-
-          {/* Login Card */}
-          <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl p-8 glow border border-pink-200/50">
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-pink-200 focus:border-pink-500 focus:outline-none bg-pink-50/50"
-                  style={{ fontFamily: 'Poppins' }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-pink-200 focus:border-pink-500 focus:outline-none bg-pink-50/50"
-                  style={{ fontFamily: 'Poppins' }}
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-                style={{ fontFamily: 'Poppins' }}
-              >
-                ✨ Enter Your Glow-Up
-              </button>
-
-              <p className="text-center text-sm text-gray-600 mt-4">
-                Demo: Use any email & password
-              </p>
-            </form>
-          </div>
-
-          {/* Features Preview */}
-          <div className="mt-8 grid grid-cols-2 gap-4 text-center">
-            <div className="text-sm">
-              <p className="text-2xl mb-2">📱</p>
-              <p className="font-semibold text-gray-700">7 Days</p>
-              <p className="text-xs text-gray-500">Transformation</p>
-            </div>
-            <div className="text-sm">
-              <p className="text-2xl mb-2">💰</p>
-              <p className="font-semibold text-gray-700">₦3,500</p>
-              <p className="text-xs text-gray-500">/month</p>
-            </div>
-            <div className="text-sm">
-              <p className="text-2xl mb-2">📊</p>
-              <p className="font-semibold text-gray-700">Track</p>
-              <p className="text-xs text-gray-500">Progress</p>
-            </div>
-            <div className="text-sm">
-              <p className="text-2xl mb-2">🎯</p>
-              <p className="font-semibold text-gray-700">Premium</p>
-              <p className="text-xs text-gray-500">Features</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Dashboard View
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-rose-50">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap');
-      `}</style>
-
-      {/* Header */}
-      <div className="bg-white/60 backdrop-blur-lg border-b border-pink-200/30 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold sparkle-text" style={{ fontFamily: 'Playfair Display' }}>
-            ✨ Kimmie Reset
-          </h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-gray-700">{user.email}</span>
-            <button
-              onClick={() => { setUser(null); setCurrentView('login'); }}
-              className="p-2 hover:bg-pink-100 rounded-lg transition"
-            >
-              <LogOut size={20} className="text-pink-600" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {currentView === 'dashboard' && (
-          <>
-            {/* Progress Overview */}
-            <div className="bg-white/80 backdrop-blur-lg rounded-3xl p-8 mb-8 shadow-lg border border-pink-200/50">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6" style={{ fontFamily: 'Playfair Display' }}>
-                Your Glow-Up Journey
-              </h2>
-
-              {/* Progress Bar */}
-              <div className="mb-6">
-                <div className="flex justify-between mb-2">
-                  <span className="font-semibold text-gray-700">Overall Progress</span>
-                  <span className="text-pink-600 font-bold">{Math.round(progressPercentage)}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-                  <div
-                    className="bg-gradient-to-r from-pink-500 to-purple-500 h-full transition-all duration-500"
-                    style={{ width: `${progressPercentage}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Status Info */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-pink-50 rounded-xl p-4">
-                  <p className="text-sm text-gray-600 mb-1">Days Completed</p>
-                  <p className="text-3xl font-bold text-pink-600">{completedDays}/7</p>
-                </div>
-                <div className="bg-purple-50 rounded-xl p-4">
-                  <p className="text-sm text-gray-600 mb-1">Status</p>
-                  <p className="text-lg font-semibold text-purple-600">
-                    {isPaid ? "✅ Premium Access" : "🔓 Free (Days 1-5)"}
-                  </p>
-                </div>
-                <div className="bg-rose-50 rounded-xl p-4">
-                  <p className="text-sm text-gray-600 mb-1">Streak</p>
-                  <p className="text-3xl font-bold text-rose-600">{completedDays} days</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Days Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {challengeDays.map((dayData) => (
-                <div
-                  key={dayData.day}
-                  className="group cursor-pointer"
-                  onClick={() => isDayAccessible(dayData.day) && setSelectedDay(dayData.day)}
-                >
-                  <div
-                    className={`rounded-2xl p-6 transition-all duration-300 border-2 min-h-fit ${
-                      isDayAccessible(dayData.day)
-                        ? 'bg-white/80 border-pink-200/50 hover:shadow-xl hover:scale-105 hover:border-pink-400'
-                        : 'bg-gray-100/50 border-gray-300/50 opacity-70 cursor-not-allowed'
-                    }`}
-                  >
-                    {/* Day Header */}
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <p className="text-sm font-semibold text-pink-600">Day {dayData.day}</p>
-                        <h3
-                          className="text-xl font-bold text-gray-800 mt-2"
-                          style={{ fontFamily: 'Playfair Display' }}
-                        >
-                          {dayData.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 mt-1">{dayData.subtitle}</p>
-                      </div>
-                      {!isDayAccessible(dayData.day) && (
-                        <Lock size={24} className="text-gray-400" />
-                      )}
-                    </div>
-
-                    {/* Quote */}
-                    <p className="italic text-gray-700 text-sm mb-4 border-l-4 border-pink-400 pl-4">
-                      "{dayData.quote}"
-                    </p>
-
-                    {/* Completion Status */}
-                    {userProgress[dayData.day] && (
-                      <div className="flex gap-1 mb-4">
-                        {[...Array(userProgress[dayData.day])].map((_, i) => (
-                          <Star key={i} size={18} className="fill-yellow-400 text-yellow-400" />
-                        ))}
-                      </div>
-                    )}
-
-                    {/* CTA */}
-                    {isDayAccessible(dayData.day) ? (
-                      <button className="text-pink-600 font-semibold text-sm hover:text-pink-700 flex items-center gap-2">
-                        View Challenge <ChevronDown size={16} />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handlePayment();
-                        }}
-                        className="text-sm font-semibold text-purple-600 hover:text-purple-700"
-                      >
-                        Unlock with Premium ₦3,500
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Premium CTA */}
-            {!isPaid && (
-              <div className="mt-12 bg-gradient-to-r from-pink-500 to-purple-500 rounded-3xl p-8 text-white text-center shadow-xl">
-                <h3 className="text-2xl font-bold mb-2" style={{ fontFamily: 'Playfair Display' }}>
-                  Ready for Days 6 & 7?
-                </h3>
-                <p className="text-pink-100 mb-6">Unlock Days 6-7 + Premium Features</p>
-                <button
-                  onClick={handlePayment}
-                  disabled={paymentLoading}
-                  className="bg-white text-pink-600 px-8 py-3 rounded-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all disabled:opacity-50"
-                >
-                  {paymentLoading ? "Processing..." : "Pay ₦3,500/month 💳"}
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Day Detail Modal */}
-      {selectedDay && isDayAccessible(selectedDay) && (
-        <div
-          className="fixed inset-0 bg-black/30 flex items-center justify-center p-4 z-50"
-          onClick={() => setSelectedDay(null)}
-        >
-          <div
-            className="bg-white/95 backdrop-blur-lg rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 shadow-2xl border border-pink-200/50"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {(() => {
-              const day = challengeDays[selectedDay - 1];
-              return (
-                <>
-                  {/* Header */}
-                  <div className="mb-6">
-                    <p className="text-pink-600 font-semibold">Day {day.day}</p>
-                    <h2
-                      className="text-3xl font-bold text-gray-800 mt-2"
-                      style={{ fontFamily: 'Playfair Display' }}
-                    >
-                      {day.title}
-                    </h2>
-                    <p className="text-gray-600 mt-2">{day.subtitle}</p>
-                  </div>
-
-                  {/* Quote */}
-                  <div className="bg-pink-50 rounded-xl p-4 mb-6 border-l-4 border-pink-400">
-                    <p className="italic text-gray-700 text-lg">"{day.quote}"</p>
-                  </div>
-
-                  {/* Tips */}
-                  <div className="mb-6">
-                    <h3 className="font-bold text-lg text-gray-800 mb-3">💡 Today's Tips:</h3>
-                    <ul className="space-y-2">
-                      {day.tips.map((tip, i) => (
-                        <li key={i} className="flex gap-3 text-gray-700">
-                          <span className="text-pink-500">✓</span>
-                          <span>{tip}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Affirmations */}
-                  <div className="mb-6">
-                    <h3 className="font-bold text-lg text-gray-800 mb-3">🌸 Affirmations:</h3>
-                    <div className="space-y-2">
-                      {day.affirmations.map((aff, i) => (
-                        <div key={i} className="bg-purple-50 p-3 rounded-lg text-gray-700 italic">
-                          "{aff}"
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Rating */}
-                  <div className="mb-6">
-                    <h3 className="font-bold text-lg text-gray-800 mb-3">⭐ Rate Today:</h3>
-                    <div className="flex gap-2">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          onClick={() => handleStarRating(selectedDay, star)}
-                          className="transform hover:scale-125 transition"
-                        >
-                          <Star
-                            size={32}
-                            className={
-                              userProgress[selectedDay] >= star
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-gray-300"
-                            }
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Journal */}
-                  <div className="mb-6">
-                    <h3 className="font-bold text-lg text-gray-800 mb-3">📝 Journal Reflection:</h3>
-                    <p className="text-gray-600 text-sm mb-3 italic">{day.journalPrompt}</p>
-                    <textarea
-                      value={journalEntries[selectedDay] || ''}
-                      onChange={(e) => handleJournalSave(selectedDay, e.target.value)}
-                      placeholder="Write your reflection here..."
-                      className="w-full p-4 border-2 border-pink-200 rounded-xl focus:border-pink-500 focus:outline-none resize-none"
-                      rows="4"
-                    />
-                  </div>
-
-                  {/* Close */}
-                  <button
-                    onClick={() => setSelectedDay(null)}
-                    className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition"
-                  >
-                    Save & Continue
-                  </button>
-                </>
-              );
-            })()}
-          </div>
-        </div>
-      )}
+    <!-- APP CONTAINER -->
+    <div id="app" class="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden border border-[#f0dede] min-h-[600px] flex flex-col justify-between">
+        <!-- Content will dynamic change here via JS -->
     </div>
-  );
-};
 
-export default KimmieResetTracker;
+    <script>
+        // --- APP STATE ---
+        let user = null;
+        let currentView = 'login'; // 'login' or 'dashboard'
+        let isPaid = false;
+        let selectedDay = null;
+        let userProgress = JSON.parse(localStorage.getItem('kimmie_progress')) || {};
+        let journalEntries = JSON.parse(localStorage.getItem('kimmie_journal')) || {};
+
+        // --- CHALLENGE DATA ---
+        const challengeDays = [
+            { day: 1, title: "Nourish & Hydrate", subtitle: "Body Foundations", quote: "Your body is your temple.", tips: ["Eat at least 3 colorful fruits/veggies today", "Drink 3 liters of water", "Choose one unhealthy snack and replace it with something nourishing"], affirmations: ["I honor my body with nourishing choices", "Every bite is an act of self-love", "I feel healthy, strong, and glowing"], journalPrompt: "How do I currently treat my body? What changes will I make?" },
+            { day: 2, title: "Declutter Your Mind", subtitle: "Mental Space", quote: "A clear mind creates a clear life.", tips: ["Meditate for 10 minutes", "Write down 5 worries and let them go", "Limit social media to 30 mins"], affirmations: ["My mind is clear, calm, and peaceful", "I choose my thoughts deliberately", "I release what no longer serves me"], journalPrompt: "What thoughts are cluttering my mind? How will I create mental peace?" },
+            { day: 3, title: "Elevate Your Presence", subtitle: "Dress & Groom Like You Mean It", quote: "When you look good, you feel good.", tips: ["Wear something that makes you feel confident", "Invest 15 mins in skincare", "Style your hair nicely", "Wear perfume or body oil"], affirmations: ["I am beautiful inside and out", "My presence is magnetic", "I carry myself with confidence and grace"], journalPrompt: "How do I want to show up in the world? What's my glow-up signature?" },
+            { day: 4, title: "Cultivate Gratitude", subtitle: "Abundance Mindset", quote: "Gratitude is the gateway to abundance.", tips: ["List 10 things you're grateful for", "Acknowledge one person who lifts you up", "Celebrate today's wins (big and small)"], affirmations: ["I am abundant in all areas of my life", "Gratitude attracts more blessings", "I celebrate my progress"], journalPrompt: "What has this week taught me? How has my energy shifted?" },
+            { day: 5, title: "Elevate Your Space", subtitle: "Environment Shift", quote: "Your environment reflects your mindset.", tips: ["Make your bed instantly", "Organize your workspace", "Light a candle or spray a nice scent"], affirmations: ["My space is a sanctuary of peace", "I welcome clarity into my surroundings", "I am organized and intentional"], journalPrompt: "Does my environment inspire me or drain me? What can I change?" },
+            { day: 6, title: "Unlock Creative Flow", subtitle: "Premium Focus", quote: "Creativity is intelligence having fun.", tips: ["Spend 30 mins brainstorming an idea", "Create a vision board entry", "Listen to classical or lo-fi music"], affirmations: ["Ideas flow to me effortlessly", "My creative potential is limitless", "I build things of value"], journalPrompt: "What business, art, or brand project makes me feel most alive?" },
+            { day: 7, title: "Commit To Your New Self", subtitle: "Make It Permanent", quote: "This isn't the end. This is your beginning.", tips: ["Review all your journal entries", "Set one habit to keep forever", "Share your transformation story", "Celebrate YOU 🎉"], affirmations: ["I am committed to my growth", "This transformation is real and permanent", "I am proud of who I'm becoming"], journalPrompt: "What's my commitment going forward? How will I maintain this glow?" }
+        ];
+
+        // --- RENDER VIEWS ---
+        function render() {
+            const app = document.getElementById('app');
+            
+            if (currentView === 'login') {
+                app.innerHTML = `
+                    <div class="p-8 flex flex-col justify-between h-full">
+                        <div class="text-center mt-6">
+                            <h1 class="text-3xl font-bold tracking-wide text-[#3a3030]">✨ Kimmie Reset</h1>
+                            <p class="text-xs text-gray-500 mt-2 tracking-widest uppercase">7-Day Discipline & Soft Life Glow-Up</p>
+                        </div>
+
+                        <!-- LOGIN CARD -->
+                        <div class="my-8 space-y-4 bg-[#fffaf9] p-6 rounded-2xl border border-[#fcf0ee]">
+                            <div>
+                                <label class="text-xs font-semibold text-gray-600 block mb-1">Email Address</label>
+                                <input type="email" id="loginEmail" placeholder="your@email.com" class="w-full px-4 py-3 text-sm rounded-xl border border-pink-200 focus:outline-none focus:border-pink-400 bg-white">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-gray-600 block mb-1">Password</label>
+                                <input type="password" id="loginPassword" placeholder="********" class="w-full px-4 py-3 text-sm rounded-xl border border-pink-200 focus:outline-none focus:border-pink-400 bg-white">
+                            </div>
+                            <button onclick="handleLogin()" class="w-full py-3 rounded-xl font-medium text-sm rose-gold-btn shadow-md transition-all mt-2">✨ Enter Your Glow-Up</button>
+                            <p class="text-[11px] text-center text-gray-400 mt-2">Demo: Use any temporary email & password to test.</p>
+                        </div>
+
+                        <!-- FEATURES PREVIEW -->
+                        <div class="text-xs text-gray-400 space-y-2 border-t border-gray-100 pt-4">
+                            <div class="flex items-center gap-2">📱 <span>7 Days Transformation Guide</span></div>
+                            <div class="flex items-center gap-2">📊 <span>Track Habits & Daily Progress</span></div>
+                            <div class="flex items-center gap-2">💳 <span>₦3,500 / month Premium Access</span></div>
+                        </div>
+                    </div>
+                `;
+            } 
+            
+            else if (currentView === 'dashboard') {
+                // Calculate progress
+                const completedCount = Object.values(userProgress).filter(Boolean).length;
+                const progressPercentage = Math.round((completedCount / 7) * 100);
+
+                app.innerHTML = `
+                    <!-- HEADER -->
+                    <div class="p-6 border-b border-[#f3e9e9] flex justify-between items-center bg-[#fffcfc]">
+                        <div>
+                            <h2 class="text-xl font-bold text-[#3a3030]">✨ Kimmie Reset</h2>
+                            <p class="text-[11px] text-gray-400">${user.email}</p>
+                        </div>
+                        <button onclick="handleLogout()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-lg transition">Logout</button>
+                    </div>
+
+                    <!-- DASHBOARD SCROLL AREA -->
+                    <div class="p-6 flex-1 overflow-y-auto space-y-6 max-h-[460px]">
+                        <!-- PROGRESS OVERVIEW -->
+                        <div class="luxury-gradient p-5 rounded-2xl border border-[#f3e5e5]">
+                            <h3 class="text-sm font-semibold text-[#5a4a4a] mb-2">Your Glow-Up Journey</h3>
+                            <div class="w-full bg-white bg-opacity-60 rounded-full h-2.5 mb-2">
+                                <div class="bg-[#e5a9a9] h-2.5 rounded-full transition-all" style="width: ${progressPercentage}%"></div>
+                            </div>
+                            <div class="flex justify-between text-xs text-gray-500 font-medium">
+                                <span>Overall Progress: ${progressPercentage}%</span>
+                                <span>${completedCount}/7 Days Completed</span>
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-[#ebd8d8] flex justify-between items-center text-xs">
+                                <span class="text-gray-400">Status:</span>
+                                <span>${isPaid ? '✅ Premium Access' : '🔒 Free Tier (Days 1-5 Only)'}</span>
+                            </div>
+                        </div>
+
+                        <!-- 7-DAY GRID -->
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-400 tracking-wider uppercase mb-3">Your 7-Day Curriculum</h4>
+                            <div class="space-y-3">
+                                ${challengeDays.map(d => {
+                                    const isLocked = d.day > 5 && !isPaid;
+                                    const isDone = userProgress[d.day];
+                                    return `
+                                        <div onclick="${isLocked ? 'openPaymentModal()' : `openDay(${d.day})`}" class="p-4 rounded-xl border transition-all cursor-pointer flex justify-between items-center ${isLocked ? 'bg-gray-50 border-gray-200 opacity-60' : isDone ? 'bg-[#f7fff7] border-green-200' : 'bg-white border-gray-100 hover:border-pink-200'}">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isLocked ? 'bg-gray-200 text-gray-500' : isDone ? 'bg-green-100 text-green-700' : 'bg-[#fbeaea] text-[#b97a7a]'}">
+                                                    ${d.day}
+                                                </div>
+                                                <div>
+                                                    <h5 class="text-sm font-medium ${isLocked ? 'text-gray-500' : 'text-[#3a3030]'}">${d.title}</h5>
+                                                    <p class="text-[11px] text-gray-400">${d.subtitle}</p>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                ${isLocked ? '🔒' : isDone ? '✅' : '⚡'}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PREMIUM FLOATING BANNER (If not paid) -->
+                    ${!isPaid ? `
+                        <div class="p-4 bg-[#3a3030] text-white flex justify-between items-center rounded-b-3xl">
+                            <div>
+                                <h4 class="text-xs font-bold text-pink-200">Unlock Days 6-7 & Premium Logs</h4>
+                                <p class="text-[10px] text-gray-300">Complete the ritual with Flutterwave</p>
+                            </div>
+                            <button onclick="payWithFlutterwave()" class="px-3 py-1.5 bg-white text-[#3a3030] hover:bg-pink-100 text-xs font-semibold rounded-lg shadow transition">
+                                Upgrade ₦3,500
+                            </button>
+                        </div>
+                    ` : `<div class="p-2 text-center text-[11px] text-gray-400 bg-gray-50 border-t rounded-b-3xl">Proudly powered by Kimmie Reset</div>`}
+                `;
+            } 
+            
+            else if (currentView === 'dayView' && selectedDay) {
+                const dayData = challengeDays.find(d => d.day === selectedDay);
+                const isDone = userProgress[selectedDay];
+                const currentJournal = journalEntries[selectedDay] || "";
+
+                app.innerHTML = `
+                    <!-- DAY HEADER -->
+                    <div class="p-5 border-b border-[#f3e9e9] flex items-center gap-3 bg-[#fffcfc]">
+                        <button onclick="goBackToDashboard()" class="text-lg p-1 text-gray-400 hover:text-gray-600">←</button>
+                        <div>
+                            <h2 class="text-md font-bold text-[#3a3030]">Day ${dayData.day}: ${dayData.title}</h2>
+                            <p class="text-[11px] text-gray-400">${dayData.subtitle}</p>
+                        </div>
+                    </div>
+
+                    <!-- DAY CONTENT SCROLL -->
+                    <div class="p-6 flex-1 overflow-y-auto space-y-5 max-h-[500px] text-xs">
+                        <!-- QUOTE -->
+                        <blockquote class="italic border-l-2 border-[#e5a9a9] pl-3 text-gray-500 my-2">
+                            "${dayData.quote}"
+                        </blockquote>
+
+                        <!-- TASKS/TIPS -->
+                        <div class="bg-white p-4 rounded-xl border border-gray-100 space-y-2">
+                            <h4 class="font-bold text-[#b97a7a] uppercase tracking-wider text-[10px] mb-1">Today's Ritual Action Steps:</h4>
+                            <ul class="list-disc pl-4 space-y-1.5 text-gray-600">
+                                ${dayData.tips.map(tip => `<li>${tip}</li>`).join('')}
+                            </ul>
+                        </div>
+
+                        <!-- AFFIRMATIONS -->
+                        <div class="bg-[#fffaf9] p-4 rounded-xl border border-[#fcf0ee] space-y-2">
+                            <h4 class="font-bold text-[#b97a7a] uppercase tracking-wider text-[10px] mb-1">Daily Manifest Affirmations:</h4>
+                            <ul class="space-y-1 text-center font-medium italic text-gray-700">
+                                ${dayData.affirmations.map(aff => `<li>" ${aff} "</li>`).join('')}
+                            </ul>
+                        </div>
+
+                        <!-- JOURNAL LOG -->
+                        <div class="space-y-2">
+                            <h4 class="font-bold text-gray-400 uppercase tracking-wider text-[10px]">Journal Prompt Reflection:</h4>
+                            <p class="text-gray-600 font-medium mb-1">${dayData.journalPrompt}</p>
+                            <textarea id="journalInput" rows="3" placeholder="Write your thoughts down honestly..." class="w-full p-3 rounded-xl border border-pink-100 focus:outline-none focus:border-pink-300 bg-white text-xs">${currentJournal}</textarea>
+                        </div>
+
+                        <!-- COMPLETE ACTION -->
+                        <div class="pt-2">
+                            <button onclick="toggleDayComplete(${dayData.day})" class="w-full py-3 rounded-xl font-medium shadow transition-all ${isDone ? 'bg-green-100 text-green-700 border border-green-300' : 'rose-gold-btn'}">
+                                ${isDone ? '🎉 Day Completed (Tap to Undo)' : '✨ Mark This Day Complete'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // --- CONTROLLERS / LOGIC ---
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPassword').value;
+            if (email && pass) {
+                user = { email: email };
+                currentView = 'dashboard';
+                render();
+            } else {
+                alert("Please fill in an email and password to log in.");
+            }
+        }
+
+        function handleLogout() {
+            user = null;
+            currentView = 'login';
+            render();
+        }
+
+        function openDay(dayNum) {
+            selectedDay = dayNum;
+            currentView = 'dayView';
+            render();
+        }
+
+        function goBackToDashboard() {
+            // Save journal entry before leaving if text area exists
+            const textarea = document.getElementById('journalInput');
+            if (textarea && selectedDay) {
+                journalEntries[selectedDay] = textarea.value;
+                localStorage.setItem('kimmie_journal', JSON.stringify(journalEntries));
+            }
+            selectedDay = null;
+            currentView = 'dashboard';
+            render();
+        }
+
+        function toggleDayComplete(dayNum) {
+            // Save journal first
+            const textarea = document.getElementById('journalInput');
+            if (textarea) {
+                journalEntries[dayNum] = textarea.value;
+                localStorage.setItem('kimmie_journal', JSON.stringify(journalEntries));
+            }
+
+            userProgress[dayNum] = !userProgress[dayNum];
+            localStorage.setItem('kimmie_progress', JSON.stringify(userProgress));
+            
+            // Auto go back to show completed grid animation
+            setTimeout(() => {
+                selectedDay = null;
+                currentView = 'dashboard';
+                render();
+            }, 300);
+        }
+
+        function openPaymentModal() {
+            alert("Days 6 and 7 are premium features. Please initiate checkout using the banner at the bottom to unlock full access!");
+        }
+
+        // --- FLUTTERWAVE PAYMENT ROUTINE ---
+        function payWithFlutterwave() {
+            if (!user) return;
+            
+            FlutterwaveCheckout({
+                public_key: "FLWPUBK_TEST-c713561dd08ff693fd477ce79e6bb4ac-X", // Secure place-holder test key
+                tx_ref: "KimmieReset-" + Date.now(),
+                amount: 3500,
+                currency: "NGN",
+                payment_options: "card,ussd,barter,banktransfer",
+                customer: {
+                    email: user.email,
+                    phone_number: "08000000000",
+                    name: user.email.split('@')[0]
+                },
+                customizations: {
+                    title: "Kimmie Reset",
+                    description: "Unlock Days 6-7 + Premium Mindset Features",
+                    logo: "https://img.icons8.com/color/96/000000/sparkles.png"
+                },
+                callback: function (data) {
+                    console.log("Payment outcome data:", data);
+                    if (data.status === "successful" || data.charge_response_code === "00") {
+                        isPaid = true;
+                        alert("🎉 Payment Successful! Welcome to Kimmie Reset Premium Access.");
+                        render();
+                    }
+                },
+                onclose: function() {
+                    // Fallback demo support in case test key fails connection
+                    console.log("Payment close action.");
+                }
+            });
+        }
+
+        // Initial launch render
+        render();
+    </script>
+</body>
+</html>
